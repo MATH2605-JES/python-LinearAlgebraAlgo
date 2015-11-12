@@ -13,14 +13,14 @@ def find_LU(matrix):
 def find_QR(matrix):
     return None
 
-
+#Emeke
 def find_determinant(matrix):
     return None
 
-
+#Emeke
 def find_eigenvalues(matrix):
     return None
 
-
+#Emeke
 def find_eigenvectors(matrix):
     return None
