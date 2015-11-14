@@ -5,7 +5,7 @@ import numpy as np
 # James
 def multiply_matrix(matrix_1, matrix_2):
     if matrix_1.shape[1] != matrix_2.shape[0]:
-        return -1
+        return None
 
     result = np.empty((matrix_1.shape[0], matrix_2.shape[1]))
     # We can use transpose & dot product library function.
@@ -15,8 +15,6 @@ def multiply_matrix(matrix_1, matrix_2):
     for i in range(matrix_1.shape[0]):
         for j in range(matrix_2_t.shape[0]):
             result[i, j] = matrix_1[i].dot(matrix_2_t[j])
-
-    print 'empty array:', result
 
     return result
 
