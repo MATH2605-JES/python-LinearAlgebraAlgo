@@ -20,8 +20,14 @@ def multiply_matrix(matrix_1, matrix_2):
 
 
 def find_LU(matrix):
-    return None
-
+    size = matrix.shape[0]
+    L = np.identity(size,float)
+    U = np.ndarray.astype(matrix,float)
+    for row in xrange(1, size):
+        for col in xrange(0, row):
+            L[row][col] = U[row][col] / U[col][col]
+            U[row] -= L[row][col] * U[col]
+    return L, U
 
 def find_QR(matrix):
     return None
