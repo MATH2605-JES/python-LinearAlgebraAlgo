@@ -35,7 +35,6 @@ def find_QR(matrix):
     return None
 
 
-
 # Seth
 def find_determinant(matrix):
     size = matrix.shape[0]
@@ -45,17 +44,17 @@ def find_determinant(matrix):
         return matrix[0][0]
     else:
         for i, element in enumerate(xrange(size)):
-            newMatrix = np.zeros(size-1)
-            for row in xrange(1, size):
+            print 'index:', i, 'size:', size
+            print matrix
+            newMatrix = np.zeros([size - 1, size - 1])
+            for row in xrange(size):
                 for col in xrange(size):
-                    if row != i and  col != i:
-                        newMatrix[row][col] = matrix[row][col]
+                    if row != i and col != i:
+                        newMatrix[row - 1][col - 1] = matrix[row][col]
+
             answer += element * modifier * find_determinant(newMatrix)
             modifier *= -1
-            size -= 1
-
-
-
+    return answer
 
 
 # Emeke
