@@ -23,7 +23,7 @@ def multiply_matrix(matrix_1, matrix_2):
 def find_LU(matrix):
     size = matrix.shape[0]
     L = np.identity(size, float)
-    U = np.ndarray.astype(matrix, float)  # @TODO this is giving me warning (maybe try without float .. it auto casts?)
+    U = np.ndarray.astype(matrix, float)
     for row in xrange(1, size):
         for col in xrange(0, row):
             L[row][col] = U[row][col] / U[col][col]
