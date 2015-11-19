@@ -19,15 +19,17 @@ def multiply_matrix(matrix_1, matrix_2):
     return result
 
 
+# Seth
 def find_LU(matrix):
     size = matrix.shape[0]
-    L = np.identity(size,float)
-    U = np.ndarray.astype(matrix,float)
+    L = np.identity(size, float)
+    U = np.ndarray.astype(matrix, float)  # @TODO this is giving me warning (maybe try without float .. it auto casts?)
     for row in xrange(1, size):
         for col in xrange(0, row):
             L[row][col] = U[row][col] / U[col][col]
             U[row] -= L[row][col] * U[col]
     return L, U
+
 
 def find_QR(matrix):
     return None
@@ -46,3 +48,12 @@ def find_eigenvalues(matrix):
 # Emeke
 def find_eigenvectors(matrix):
     return None
+
+
+# James
+def matrix_trace(matrix):
+    loop = min(matrix.shape[1], matrix.shape[0])
+    sum = 0
+    for i in range(loop):
+        sum += matrix[i, i]
+    return sum
