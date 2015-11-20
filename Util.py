@@ -35,7 +35,6 @@ def find_QR(matrix):
     return None
 
 
-
 # Seth
 def find_determinant(matrix):
     size = matrix.shape[0]
@@ -45,7 +44,7 @@ def find_determinant(matrix):
     modifier = 1
     for i in xrange(size):
         element = matrix[0][i]
-        newMatrix = np.zeros((size-1, size -1))
+        newMatrix = np.zeros((size - 1, size - 1))
         for row in xrange(1, size):
             newCol = 0
             for col in xrange(size):
@@ -56,9 +55,6 @@ def find_determinant(matrix):
         answer += element * modifier * find_determinant(newMatrix)
         modifier *= -1
     return answer
-
-
-
 
 
 # Emeke
@@ -78,3 +74,60 @@ def matrix_trace(matrix):
     for i in range(loop):
         sum += matrix[i, i]
     return sum
+
+
+# James
+def vector_norm(vector):
+    squared_sum = 0
+    for i in range(len(vector)):
+        squared_sum += vector[i] ** 2
+    return np.sqrt(squared_sum)
+
+
+# James
+def house_holder_reconstruct(matrix, size):
+    diff = size - matrix.shape[0]
+    if diff < 1:
+        return None
+    arr = np.identity(size)
+    for x in range(matrix.shape[1]):
+        for y in range(matrix.shape[0]):
+            arr[y + diff, x + diff] = matrix[y, x]
+
+    return arr
+
+
+# James
+def house_holder_compute_h(matrix):
+    v = np.array(matrix[:, 0]).astype(float)  # first column vector
+    v[0] += vector_norm(v)  # construct u
+    u_norm_squared = vector_norm(v) ** 2  # ||u||^2
+    u = np.array([v])  # wrap to allow u^t
+    h = np.identity(u.shape[1], float) - 2 / u_norm_squared * np.dot(u.T, u)  # @TODO will we get any nxn matrix
+    return h
+
+
+def house_holder(matrix):
+    for i in range(matrix.shape[0] - 1):
+        h = house_holder_compute_h(matrix)
+        ha = multiply_matrix(h, matrix)
+
+
+# James
+# if        [ a b c
+#            d e f
+#            g h i ]
+# return    [ e f
+#            h i ]
+#
+def get_sub_matrix(matrix):
+    arr = np.empty((matrix.shape[0] - 1, matrix.shape[1] - 1))
+    for x in range(1, matrix.shape[1]):
+        for y in range(1, matrix.shape[0]):
+            arr[y - 1, x - 1] = matrix[y, x]
+    return arr
+
+
+if __name__ == '__main__':
+    matrix = np.array([[3, 2, 2], [4, 1, 1], [0, 2, 5]])
+    print house_holder_reconstruct((get_sub_matrix(matrix)), 4)
