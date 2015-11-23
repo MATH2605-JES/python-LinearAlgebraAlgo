@@ -192,7 +192,7 @@ def matrix_error(matrix, original_matrix):
 # Code reference: https://en.wikipedia.org/wiki/Triangular_matrix
 # Note: This code is straightforward, and I also implemented matrix inverse function.
 def solve_lu_b(l, u, b):
-    m, n = matrix.shape
+    m, n = l.shape
     if b.shape[0] != m:
         return None
 
@@ -214,7 +214,7 @@ def solve_lu_b(l, u, b):
 
 # James
 def solve_qr_b(q, r, b):
-    m, n = matrix.shape
+    m, n = q.shape
     if b.shape[0] != m:
         return None
 
@@ -269,65 +269,63 @@ def generate_b_matrix(size):
     return matrix
 
 
-# @TODO unfinished
+# @TODO Do a final check-up
 # James
 def problem_1d(n=(2, 12)):
     low_bound, high_bound = n
+
+    file = open('problem_1d.txt', 'w')
+
     for size in range(low_bound, high_bound):
-        print '=========================================='
-        print '============[ n =', size, ']====================='
-        p = generate_pascal_matrix(size)
-        print 'P ='
-        print p
+        print >> file, '============[ n =', size, ']====================='
+        p = generate_pascal_matrix(size).astype(int)
+        print >> file, 'P ='
+        print >> file, p
         b = generate_b_matrix(size)
-        print 'b ='
-        print b
-        print '============LU factorization==============='
+        print >> file, 'b ='
+        print >> file, b
+        print >> file, '============LU factorization==============='
         l, u, error = lu_fact(p)
-        print 'L ='
-        print l
-        print 'U ='
-        print u
-        print 'error =', error
+        print >> file, 'L ='
+        print >> file, l
+        print >> file, 'U ='
+        print >> file, u
+        print >> file, 'error =', error
         x = solve_lu_b(l, u, b)
-        print 'x_sol =', x
-        print '============QR factorization==============='
-        print '(Householder)'
+        print >> file, 'x_sol ='
+        print >> file, x
+        print >> file, '||Px - b||_inf (error) =', matrix_error(multiply_matrix(p, x), b)
+        print >> file, '============QR factorization==============='
+        print >> file, '(Householder)'
         q, r, error = qr_fact_househ(p)
-        print 'L ='
-        print l
-        print 'U ='
-        print u
-        print 'error =', error
+        print >> file, 'L ='
+        print >> file, l
+        print >> file, 'U ='
+        print >> file, u
+        print >> file, 'error =', error
         x = solve_qr_b(q, r, b)
-        print 'x_sol =', x
-        print '============QR factorization==============='
-        print '(Givens)'
+        print >> file, 'x_sol ='
+        print >> file, x
+        print >> file, '||Px - b||_inf (error) =', matrix_error(multiply_matrix(p, x), b)
+        print >> file, '============QR factorization==============='
+        print >> file, '(Givens)'
         q, r, error = qr_fact_givens(p)
-        print 'L ='
-        print l
-        print 'U ='
-        print u
-        print 'error =', error
+        print >> file, 'L ='
+        print >> file, l
+        print >> file, 'U ='
+        print >> file, u
+        print >> file, 'error =', error
         x = solve_qr_b(q, r, b)
-        print 'x_sol =', x
+        print >> file, 'x_sol ='
+        print >> file, x
+        print >> file, '||Px - b||_inf (error) =', matrix_error(multiply_matrix(p, x), b)
+        print >> file
+        print >> file
 
 
 if __name__ == '__main__':
     # matrix = np.array([[3, 2, 2], [4, 1, 1], [0, 2, 5]])
-    matrix = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 6, 10], [1, 4, 10, 20]])
+    # matrix = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 6, 10], [1, 4, 10, 20]])
     # matrix2 = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
     # matrix = np.array([[4, 1, -2, 2], [1, 2, 0, 1], [-2, 0, 3, -2], [2, 1, -2, -1]])
-    q, r, err = qr_fact_househ(matrix)
-    print q
-    print r
-    # l, u, error = lu_fact(matrix)
-    # print solve_lu_b(l, u, np.array([[1, 1 / 2., 1 / 3., 1 / 4.]]).T)
-    # , r, error = qr_fact_givens(matrix)
-    # print solve_qr_b(q, r, np.array([[1, 1 / 2., 1 / 3., 1 / 4.]]).T)
-    # matrix = np.array([[4, 5], [0, 6]])
-    # print find_determinant(matrix)
-    # print l
-    # print u
-    # print erro
-    # problem_1d()
+    problem_1d()
