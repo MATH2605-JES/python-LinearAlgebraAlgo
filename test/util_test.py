@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from Util import multiply_matrix, matrix_trace
+from Util import multiply_matrix, matrix_trace, find_determinant
 
 
 class TestUtil(unittest.TestCase):
@@ -40,6 +40,10 @@ class TestUtil(unittest.TestCase):
         self.assertEqual(6, matrix_trace(get_3x2matrix_A()))
         self.assertEqual(6, matrix_trace(get_3x2matrix_B()))
         self.assertEqual(-7, matrix_trace(get_3x3matrix_A()))
+
+    def test_find_determinant(self):
+        print find_determinant(get_3x3matrix_A())
+        self.assertEquals(np.linalg.det(get_3x3matrix_A()), find_determinant(get_3x3matrix_A()))
 
 
 def get_3x2matrix_A():
