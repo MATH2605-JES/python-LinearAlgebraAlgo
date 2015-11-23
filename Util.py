@@ -56,8 +56,34 @@ def find_determinant(matrix):
         answer += element * modifier * find_determinant(newMatrix)
         modifier *= -1
     return answer
-
-
+def jacobi_iter(initData, maxIt):
+    A = np.array([[1, .5, 1.0/3], [.5, 1, .25],[1.0/3, .25, 1]])
+    bVec = np.array([[.1],[.1],[.1]])
+    diagonal = np.diag(A)
+    newdiagonoal = np.diagflat(diagonal)
+    lu = A - newdiagonoal
+    sInv = matrix_inverse(newdiagonoal)
+    for i in range(maxIt):
+        temp = multiply_matrix(newdiagonoal, -1* lu)
+        initData = multiply_matrix(temp, initData)
+        initData += bVec
+        print "iteration:", i
+        print initData
+    return None
+#Seth
+def gs_iter(initData,maxIt):
+    A = np.array([[1, .5, 1.0/3], [.5, 1, .25],[1.0/3, .25, 1]])
+    bVec = np.array([[.1],[.1],[.1]])
+    lower = np.tril(A)
+    upper = A - lower
+    sInv = matrix_inverse(lower)
+    for i in range(maxIt):
+        temp = multiply_matrix(upper * -1, sInv)
+        initData = multiply_matrix(temp, initData)
+        initData += bVec
+        print "interation: ",i
+        print initData
+    return None
 # Emeke
 def find_eigenvalues(matrix):
     return None
