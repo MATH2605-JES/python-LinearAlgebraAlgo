@@ -110,14 +110,12 @@ def house_holder_compute_h(matrix):
 
 # James
 def qr_fact_househ(matrix):
-    matrix_size = matrix.shape[0]
-    h = house_holder_compute_h(matrix)  # compute h
-    Q = h  # start building Q from h_1
-    ha = multiply_matrix(h, matrix)
-    R = ha  # start building R from h_1 * A
-    for i in range(matrix_size - 2):
-        h = house_holder_reconstruct(house_holder_compute_h(get_sub_matrix(ha, i + 1)), matrix_size)  # get h_n
-        ha = multiply_matrix(h, matrix)  # h_n * A @TODO this part ask
+    y, x = matrix.shape
+
+    Q = house_holder_compute_h(matrix)  # start building Q from h_1
+    R = multiply_matrix(Q, matrix)  # start building R from h_1 * A
+    for i in range(y - 2):
+        h = house_holder_reconstruct(house_holder_compute_h(get_sub_matrix(R, i + 1)), y)  # get h_n
         Q = multiply_matrix(Q, h)  # (h_1 * ... h_(n-1)) * h_n
         R = multiply_matrix(h, R)  # h_n * (.... h_1 * A)
 
@@ -193,24 +191,42 @@ def matrix_error(matrix, original_matrix):
 # James
 # Code reference: https://en.wikipedia.org/wiki/Triangular_matrix
 # Note: This code is straightforward, and I also implemented matrix inverse function.
-def solve_lu_b(matrix, b):
-    m, n = matrix.shape
+def solve_lu_b(l, u, b):
+    m, n = l.shape
     if b.shape[0] != m:
         return None
-    L, U, error = lu_fact(matrix)
-    y = b
+
+    x = np.copy(b)
+
     # lower triangle loop, calculate y with dp, forward
     for i in range(m):
         for j in range(0, i):
-            y[i] -= L[i, j] * y[j]
-        y[i] /= L[i, i]
+            x[i] -= l[i, j] * x[j]
+        x[i] /= l[i, i]
     # upper triangle loop, ,calculate x with dp, backward
     for i in reversed(range(m)):
-        print i
         for j in range(i + 1, m):
-            y[i] -= L[i, j] * y[j]
-        y[i] /= L[i, i]
-    return y
+            x[i] -= u[i, j] * x[j]
+        x[i] /= u[i, i]
+
+    return x
+
+
+# James
+def solve_qr_b(q, r, b):
+    m, n = q.shape
+    if b.shape[0] != m:
+        return None
+
+    x = multiply_matrix(q.T, b)  # x = Q^tb
+
+    # upper triangle loop, ,calculate x with dp, backward
+    for i in reversed(range(m)):
+        for j in range(i + 1, m):
+            x[i] -= r[i, j] * x[j]
+        x[i] /= r[i, i]
+
+    return x
 
 
 # James
@@ -228,23 +244,88 @@ def matrix_cofactor(matrix):
     return cofactor
 
 
+# James
 def matrix_inverse(matrix):
     return 1.0 / find_determinant(matrix) * matrix_cofactor(matrix).T
 
 
+# James
+def generate_pascal_matrix(size):
+    matrix = np.zeros([size, size])  # init matrix
+    matrix[:, 0] = 1  # first col all 1
+    matrix[0, :] = 1  # first row all 1
+    for i in range(1, size):
+        for j in range(1, size):
+            matrix[i, j] = matrix[i - 1, j] + matrix[i, j - 1]
+
+    return matrix
+
+
+# James
+def generate_b_matrix(size):
+    matrix = np.zeros([size, 1])
+    for i in range(1, size):
+        matrix[i, 0] = 1.0 / i
+    return matrix
+
+
+# @TODO Do a final check-up
+# James
+def problem_1d(n=(2, 12)):
+    low_bound, high_bound = n
+
+    file = open('problem_1d.txt', 'w')
+
+    for size in range(low_bound, high_bound):
+        print >> file, '============[ n =', size, ']====================='
+        p = generate_pascal_matrix(size).astype(int)
+        print >> file, 'P ='
+        print >> file, p
+        b = generate_b_matrix(size)
+        print >> file, 'b ='
+        print >> file, b
+        print >> file, '============LU factorization==============='
+        l, u, error = lu_fact(p)
+        print >> file, 'L ='
+        print >> file, l
+        print >> file, 'U ='
+        print >> file, u
+        print >> file, 'error =', error
+        x = solve_lu_b(l, u, b)
+        print >> file, 'x_sol ='
+        print >> file, x
+        print >> file, '||Px - b||_inf (error) =', matrix_error(multiply_matrix(p, x), b)
+        print >> file, '============QR factorization==============='
+        print >> file, '(Householder)'
+        q, r, error = qr_fact_househ(p)
+        print >> file, 'L ='
+        print >> file, l
+        print >> file, 'U ='
+        print >> file, u
+        print >> file, 'error =', error
+        x = solve_qr_b(q, r, b)
+        print >> file, 'x_sol ='
+        print >> file, x
+        print >> file, '||Px - b||_inf (error) =', matrix_error(multiply_matrix(p, x), b)
+        print >> file, '============QR factorization==============='
+        print >> file, '(Givens)'
+        q, r, error = qr_fact_givens(p)
+        print >> file, 'L ='
+        print >> file, l
+        print >> file, 'U ='
+        print >> file, u
+        print >> file, 'error =', error
+        x = solve_qr_b(q, r, b)
+        print >> file, 'x_sol ='
+        print >> file, x
+        print >> file, '||Px - b||_inf (error) =', matrix_error(multiply_matrix(p, x), b)
+        print >> file
+        print >> file
+
+
 if __name__ == '__main__':
     # matrix = np.array([[3, 2, 2], [4, 1, 1], [0, 2, 5]])
-    matrix = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 6, 10], [1, 4, 10, 20]])
+    # matrix = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 6, 10], [1, 4, 10, 20]])
     # matrix2 = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
     # matrix = np.array([[4, 1, -2, 2], [1, 2, 0, 1], [-2, 0, 3, -2], [2, 1, -2, -1]])
-    # q, r = house_holder(matrix)
-    # print q
-    # print r
-    # q, r, erro = qr_fact_givens(matrix)
-    l, u, erro = lu_fact(matrix)
-    print solve_lu_b(matrix, np.array([1, 1 / 2, 1 / 3, 1 / 4]))
-    # matrix = np.array([[4, 5], [0, 6]])
-    # print find_determinant(matrix)
-    # print l
-    # print u
-    # print erro
+    problem_1d()
