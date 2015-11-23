@@ -197,20 +197,46 @@ def solve_lu_b(matrix, b):
     m, n = matrix.shape
     if b.shape[0] != m:
         return None
+
     L, U, error = lu_fact(matrix)
-    y = b
+    x = np.copy(b)
+
     # lower triangle loop, calculate y with dp, forward
     for i in range(m):
         for j in range(0, i):
-            y[i] -= L[i, j] * y[j]
-        y[i] /= L[i, i]
+            x[i] -= L[i, j] * x[j]
+        x[i] /= L[i, i]
     # upper triangle loop, ,calculate x with dp, backward
     for i in reversed(range(m)):
-        print i
         for j in range(i + 1, m):
-            y[i] -= L[i, j] * y[j]
-        y[i] /= L[i, i]
-    return y
+            x[i] -= U[i, j] * x[j]
+        x[i] /= U[i, i]
+
+    return x
+
+
+# James
+# Refer to comments on solve_lu_b
+def solve_qr_b(matrix, b):
+    m, n = matrix.shape
+    if b.shape[0] != m:
+        return None
+
+    Q, R, error = qr_fact_givens(matrix)
+    x = np.copy(b)
+
+    # lower triangle loop, calculate y with dp, forward
+    for i in range(m):
+        for j in range(0, i):
+            x[i] -= Q[i, j] * x[j]
+        x[i] /= Q[i, i]
+    # upper triangle loop, ,calculate x with dp, backward
+    for i in reversed(range(m)):
+        for j in range(i + 1, m):
+            x[i] -= R[i, j] * x[j]
+        x[i] /= R[i, i]
+
+    return x
 
 
 # James
@@ -242,7 +268,8 @@ if __name__ == '__main__':
     # print r
     # q, r, erro = qr_fact_givens(matrix)
     l, u, erro = lu_fact(matrix)
-    print solve_lu_b(matrix, np.array([1, 1 / 2, 1 / 3, 1 / 4]))
+    print solve_lu_b(matrix, np.array([[1, 1 / 2., 1 / 3., 1 / 4.]]).T)
+    print solve_qr_b(matrix, np.array([[1, 1 / 2., 1 / 3., 1 / 4.]]).T)
     # matrix = np.array([[4, 5], [0, 6]])
     # print find_determinant(matrix)
     # print l
