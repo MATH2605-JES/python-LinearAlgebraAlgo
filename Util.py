@@ -110,15 +110,13 @@ def house_holder_compute_h(matrix):
 
 # James
 def qr_fact_househ(matrix):
-    matrix_size = matrix.shape[0]
-    h = house_holder_compute_h(matrix)  # compute h
-    Q = h  # start building Q from h_1
-    ha = multiply_matrix(h, matrix)
-    R = ha  # start building R from h_1 * A
-    for i in range(matrix_size - 2):
-        h = house_holder_reconstruct(house_holder_compute_h(get_sub_matrix(ha, i + 1)), matrix_size)  # get h_n
-        ha = multiply_matrix(h, matrix)  # h_n * A @TODO this part ask
-        Q = multiply_matrix(Q, h.T)  # (h_1 * ... h_(n-1)) * h_n
+    y, x = matrix.shape
+
+    Q = house_holder_compute_h(matrix)  # start building Q from h_1
+    R = multiply_matrix(Q, matrix)  # start building R from h_1 * A
+    for i in range(y - 2):
+        h = house_holder_reconstruct(house_holder_compute_h(get_sub_matrix(R, i + 1)), y)  # get h_n
+        Q = multiply_matrix(Q, h)  # (h_1 * ... h_(n-1)) * h_n
         R = multiply_matrix(h, R)  # h_n * (.... h_1 * A)
 
     error = matrix_error(multiply_matrix(Q, R), matrix)
@@ -332,4 +330,4 @@ if __name__ == '__main__':
     # print l
     # print u
     # print erro
-    #problem_1d()
+    # problem_1d()
