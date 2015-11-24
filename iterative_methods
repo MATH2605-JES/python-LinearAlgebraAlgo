@@ -1,6 +1,7 @@
-import Util
 import numpy as np
+import Util
 
+#Seth
 def jacobi_iter(initData): # x = -[D^-1](L+U)x + [D^-1]*b
     A = np.array([[1, .5, 1.0/3], [.5, 1, .25],[1.0/3, .25, 1]])
     bVec = np.array([[.1],[.1],[.1]])
@@ -8,6 +9,7 @@ def jacobi_iter(initData): # x = -[D^-1](L+U)x + [D^-1]*b
     lu = A - diagonal
     sInv = Util.matrix_inverse(diagonal)
     return iterate(initData, sInv, lu, bVec)
+
 #Seth
 def gs_iter(initData): # x = -[(L+D)^-1]*Ux + [(L+D)^-1]*b
     A = np.array([[1, .5, 1.0/3], [.5, 1, .25],[1.0/3, .25, 1]])
@@ -16,6 +18,7 @@ def gs_iter(initData): # x = -[(L+D)^-1]*Ux + [(L+D)^-1]*b
     upper = A - ld
     sInv = Util.matrix_inverse(ld)
     return iterate(initData, sInv, upper, bVec)
+
 #Seth
 def iterate(data, sInv, T, bVec, maxIt=100, tol=0.00005):
     for i in range(maxIt):
