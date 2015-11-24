@@ -1,6 +1,10 @@
 # General Utility Methods for Algorithms
 import numpy as np
 import matplotlib.pyplot as plot
+import numpy.matlib
+import matplotlib.pyplot as pyplot
+import matplotlib.colors as plotcolors
+import random as rand
 
 
 # James
@@ -19,6 +23,15 @@ def multiply_matrix(matrix_1, matrix_2):
 
     return result
 
+#Emeke
+#works n x m matrices
+def multiply_matrix2(matrix_1, matrix_2):
+    product = np.matlib.empty((matrix_1.shape[0], matrix_2.shape[1]))
+    for i in range(product.shape[0]):
+        for j in range(product.shape[1]):
+            product[i,j] = matrix_1[i,:].dot(matrix_2[:,j])
+
+    return product
 
 # Seth
 def lu_fact(matrix):
@@ -33,9 +46,6 @@ def lu_fact(matrix):
     error = matrix_error(multiply_matrix(L, U), matrix)
     return L, U, error
 
-
-def find_QR(matrix):
-    return None
 
 
 # Seth
@@ -58,6 +68,23 @@ def find_determinant(matrix):
         modifier *= -1
     return answer
 
+#Seth
+def getDiag(matrix):
+    diag = np.copy(matrix)
+    for i in range(diag.shape[0]):
+        for j in range(diag.shape[1]):
+            if i != j:
+                diag[i][j] = 0
+    return diag
+
+#Seth
+def getLowerDiag(matrix):
+    lower = np.copy(matrix)
+    for i in range(lower.shape[0]):
+        for j in range(lower.shape[1]):
+            if i < j:
+                lower[i][j] = 0
+    return lower
 
 # Emeke
 def find_eigenvalues(matrix):
@@ -249,6 +276,13 @@ def matrix_cofactor(matrix):
 def matrix_inverse(matrix):
     return 1.0 / find_determinant(matrix) * matrix_cofactor(matrix).T
 
+#Emeke
+def matrix_inverse_22(matrix):
+    det = matrix[0,0]*matrix[1,1] - matrix[0,1]*matrix[1,0]
+    matrixB = np.matrix([[matrix[0,0], - matrix[0,1]], [-matrix[1,0], matrix[1,1]]])
+    if det == 0:
+        return None
+    return (1.0/det) * matrixB
 
 # James
 def generate_pascal_matrix(size):
@@ -342,11 +376,51 @@ def problem_1d(n=(2, 12)):
     plot.plot(n, qr_givens_error)
     plot.plot(n, qr_px_b_givens_error)
     plot.show()
+"""Emeke
+Generates 1000 random 2x2 matrices
+Create a series of randomly generated matrices with uniformly distributed entries within a given range
+shape (tuple(int, int)): Desired shape of matrices.
+        number (int): Requested number of matrices.
+        lower (Real): Lower bound for random range.
+        upper (Real): Upper bound for random range.
+"""
+
+def random_matrices(shape, number, lower, upper):
+    series = tuple()
+
+    while len(series) < number:
+        mat = np.matlib.empty(shape)
+
+        for i in range(mat.shape[0]):
+            for j in range(mat.shape[1]):
+                mat[i,j] = rand.uniform(lower, upper)
+
+        series += (mat,)
+
+    return series
+
+#Emeke
+def plot_colored(data, colors, color_label, xlabel, ylabel, title, xscale, yscale, cmap, fname):
+    pyplot.clf()
+
+    #Create colormap object if needed
+    colormap = None if cmap is None else plotcolors.LinearSegmentedColormap.from_list('cplot', cmap)
+
+    #Plot data
+    pyplot.scatter(data[0], data[1], s=40, c=colors, cmap=colormap)
+
+    #Create titles and legend, then render
+    pyplot.colorbar().set_label(color_label)
+    pyplot.title(title).set_size('xx-large')
+    pyplot.xlabel(xlabel)
+    pyplot.ylabel(ylabel)
+    pyplot.xlim(xscale)
+    pyplot.ylim(yscale)
+    pyplot.savefig(fname)
 
 
 if __name__ == '__main__':
-    matrix = np.array([[1, 2, 3.], [4., 5., 60.], [7., 8., 9.]])
-    # print matrix_inverse(matrix)
+    # matrix = np.array([[3, 2, 2], [4, 1, 1], [0, 2, 5]])
     # matrix = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 6, 10], [1, 4, 10, 20]])
     # matrix2 = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
     # matrix = np.array([[4, 1, -2, 2], [1, 2, 0, 1], [-2, 0, 3, -2], [2, 1, -2, -1]])
