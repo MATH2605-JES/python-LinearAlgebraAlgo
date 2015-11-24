@@ -1,5 +1,6 @@
 # General Utility Methods for Algorithms
 import numpy as np
+import matplotlib.pyplot as plot
 
 
 # James
@@ -233,9 +234,9 @@ def solve_qr_b(q, r, b):
 # This beautiful code took 3.5 hours T_T
 def matrix_cofactor(matrix):
     y, x = matrix.shape
-    cofactor = np.empty([y, x])
+    cofactor = np.empty([y, x], dtype=float)
     for i in range(y):
-        flip = 1 if (i % 2 == 0) else -1
+        flip = 1.0 if (i % 2 == 0) else -1.0
         for j in range(x):
             sub_matrix = np.delete(np.delete(matrix, j, 1), i, 0)
             cofactor[i, j] = flip * find_determinant(sub_matrix)
@@ -275,9 +276,11 @@ def problem_1d(n=(2, 12)):
     low_bound, high_bound = n
 
     file = open('problem_1d.txt', 'w')
+    n, lu_error, lu_px_b_error, qr_househ_error, qr_px_b_househ_error, qr_givens_error, qr_px_b_givens_error = [], [], [], [], [], [], []
 
     for size in range(low_bound, high_bound):
         print >> file, '============[ n =', size, ']====================='
+        n.append(size)
         p = generate_pascal_matrix(size).astype(int)
         print >> file, 'P ='
         print >> file, p
@@ -291,10 +294,13 @@ def problem_1d(n=(2, 12)):
         print >> file, 'U ='
         print >> file, u
         print >> file, 'error =', error
+        lu_error.append(error)
         x = solve_lu_b(l, u, b)
         print >> file, 'x_sol ='
         print >> file, x
-        print >> file, '||Px - b||_inf (error) =', matrix_error(multiply_matrix(p, x), b)
+        error = matrix_error(multiply_matrix(p, x), b)
+        print >> file, '||Px - b||_inf (error) =', error
+        lu_px_b_error.append(error)
         print >> file, '============QR factorization==============='
         print >> file, '(Householder)'
         q, r, error = qr_fact_househ(p)
@@ -303,10 +309,13 @@ def problem_1d(n=(2, 12)):
         print >> file, 'U ='
         print >> file, u
         print >> file, 'error =', error
+        qr_househ_error.append(error)
         x = solve_qr_b(q, r, b)
         print >> file, 'x_sol ='
         print >> file, x
-        print >> file, '||Px - b||_inf (error) =', matrix_error(multiply_matrix(p, x), b)
+        error = matrix_error(multiply_matrix(p, x), b)
+        print >> file, '||Px - b||_inf (error) =', error
+        qr_px_b_househ_error.append(error)
         print >> file, '============QR factorization==============='
         print >> file, '(Givens)'
         q, r, error = qr_fact_givens(p)
@@ -315,16 +324,29 @@ def problem_1d(n=(2, 12)):
         print >> file, 'U ='
         print >> file, u
         print >> file, 'error =', error
+        qr_givens_error.append(error)
         x = solve_qr_b(q, r, b)
         print >> file, 'x_sol ='
         print >> file, x
-        print >> file, '||Px - b||_inf (error) =', matrix_error(multiply_matrix(p, x), b)
+        error = matrix_error(multiply_matrix(p, x), b)
+        print >> file, '||Px - b||_inf (error) =', error
+        qr_px_b_givens_error.append(error)
         print >> file
         print >> file
+
+    print n, lu_error, lu_px_b_error, qr_househ_error, qr_px_b_househ_error, qr_givens_error, qr_px_b_givens_error
+    plot.plot(n, lu_error)
+    plot.plot(n, lu_px_b_error)
+    plot.plot(n, qr_househ_error)
+    plot.plot(n, qr_px_b_househ_error)
+    plot.plot(n, qr_givens_error)
+    plot.plot(n, qr_px_b_givens_error)
+    plot.show()
 
 
 if __name__ == '__main__':
-    # matrix = np.array([[3, 2, 2], [4, 1, 1], [0, 2, 5]])
+    matrix = np.array([[1, 2, 3.], [4., 5., 60.], [7., 8., 9.]])
+    # print matrix_inverse(matrix)
     # matrix = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 6, 10], [1, 4, 10, 20]])
     # matrix2 = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
     # matrix = np.array([[4, 1, -2, 2], [1, 2, 0, 1], [-2, 0, 3, -2], [2, 1, -2, -1]])
