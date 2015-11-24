@@ -56,34 +56,36 @@ def find_determinant(matrix):
         answer += element * modifier * find_determinant(newMatrix)
         modifier *= -1
     return answer
-def jacobi_iter(initData, maxIt):
+def jacobi_iter(initData): # x = -[D^-1](L+U)x + [D^-1]*b
     A = np.array([[1, .5, 1.0/3], [.5, 1, .25],[1.0/3, .25, 1]])
     bVec = np.array([[.1],[.1],[.1]])
-    diagonal = np.diag(A)
-    newdiagonoal = np.diagflat(diagonal)
-    lu = A - newdiagonoal
-    sInv = matrix_inverse(newdiagonoal)
-    for i in range(maxIt):
-        temp = multiply_matrix(newdiagonoal, -1* lu)
-        initData = multiply_matrix(temp, initData)
-        initData += bVec
-        print "iteration:", i
-        print initData
-    return None
+    diagVec = np.diag(A)
+    diagonal = np.diagflat(diagVec)
+    lu = A - diagonal
+    sInv = matrix_inverse(diagonal)
+    return iterate(initData, sInv, lu, bVec)
 #Seth
-def gs_iter(initData,maxIt):
+def gs_iter(initData): # x = -[(L+D)^-1]*Ux + [(L+D)^-1]*b
     A = np.array([[1, .5, 1.0/3], [.5, 1, .25],[1.0/3, .25, 1]])
     bVec = np.array([[.1],[.1],[.1]])
-    lower = np.tril(A)
-    upper = A - lower
-    sInv = matrix_inverse(lower)
+    ld = np.tril(A)
+    upper = A - ld
+    sInv = matrix_inverse(ld)
+    return iterate(initData, sInv, upper, bVec)
+
+def iterate(data, sInv, T, bVec, maxIt=100, tol=0.00005):
     for i in range(maxIt):
-        temp = multiply_matrix(upper * -1, sInv)
-        initData = multiply_matrix(temp, initData)
-        initData += bVec
-        print "interation: ",i
-        print initData
+        previousData = data
+        temp = multiply_matrix(sInv, T * -1)
+        data = multiply_matrix(temp, previousData)
+        data += multiply_matrix(sInv, bVec)
+        deltaData = np.absolute(previousData - data)
+        if np.less_equal(deltaData, np.ones(data.shape) * tol).all():
+            print "interation: ", i, "\n", data
+            return data, i
     return None
+
+
 # Emeke
 def find_eigenvalues(matrix):
     return None
