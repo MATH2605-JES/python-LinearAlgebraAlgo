@@ -33,9 +33,6 @@ def lu_fact(matrix):
     return L, U, error
 
 
-def find_QR(matrix):
-    return None
-
 
 # Seth
 def find_determinant(matrix):
@@ -56,35 +53,24 @@ def find_determinant(matrix):
         answer += element * modifier * find_determinant(newMatrix)
         modifier *= -1
     return answer
-def jacobi_iter(initData): # x = -[D^-1](L+U)x + [D^-1]*b
-    A = np.array([[1, .5, 1.0/3], [.5, 1, .25],[1.0/3, .25, 1]])
-    bVec = np.array([[.1],[.1],[.1]])
-    diagVec = np.diag(A)
-    diagonal = np.diagflat(diagVec)
-    lu = A - diagonal
-    sInv = matrix_inverse(diagonal)
-    return iterate(initData, sInv, lu, bVec)
+
 #Seth
-def gs_iter(initData): # x = -[(L+D)^-1]*Ux + [(L+D)^-1]*b
-    A = np.array([[1, .5, 1.0/3], [.5, 1, .25],[1.0/3, .25, 1]])
-    bVec = np.array([[.1],[.1],[.1]])
-    ld = np.tril(A)
-    upper = A - ld
-    sInv = matrix_inverse(ld)
-    return iterate(initData, sInv, upper, bVec)
+def getDiag(matrix):
+    diag = np.copy(matrix)
+    for i in range(diag.shape[0]):
+        for j in range(diag.shape[1]):
+            if i != j:
+                diag[i][j] = 0
+    return diag
 
-def iterate(data, sInv, T, bVec, maxIt=100, tol=0.00005):
-    for i in range(maxIt):
-        previousData = data
-        temp = multiply_matrix(sInv, T * -1)
-        data = multiply_matrix(temp, previousData)
-        data += multiply_matrix(sInv, bVec)
-        deltaData = np.absolute(previousData - data)
-        if np.less_equal(deltaData, np.ones(data.shape) * tol).all():
-            print "interation: ", i, "\n", data
-            return data, i
-    return None
-
+#Seth
+def getLowerDiag(matrix):
+    lower = np.copy(matrix)
+    for i in range(lower.shape[0]):
+        for j in range(lower.shape[1]):
+            if i < j:
+                lower[i][j] = 0
+    return lower
 
 # Emeke
 def find_eigenvalues(matrix):
