@@ -1,10 +1,10 @@
 # General Utility Methods for Algorithms
+import random as rand
+
 import numpy as np
-import matplotlib.pyplot as plot
 import numpy.matlib
 import matplotlib.pyplot as pyplot
 import matplotlib.colors as plotcolors
-import random as rand
 
 
 # James
@@ -23,15 +23,17 @@ def multiply_matrix(matrix_1, matrix_2):
 
     return result
 
-#Emeke
-#works n x m matrices
+
+# Emeke
+# works n x m matrices
 def multiply_matrix2(matrix_1, matrix_2):
     product = np.matlib.empty((matrix_1.shape[0], matrix_2.shape[1]))
     for i in range(product.shape[0]):
         for j in range(product.shape[1]):
-            product[i,j] = matrix_1[i,:].dot(matrix_2[:,j])
+            product[i, j] = matrix_1[i, :].dot(matrix_2[:, j])
 
     return product
+
 
 # Seth
 def lu_fact(matrix):
@@ -45,7 +47,6 @@ def lu_fact(matrix):
 
     error = matrix_error(multiply_matrix(L, U), matrix)
     return L, U, error
-
 
 
 # Seth
@@ -68,7 +69,8 @@ def find_determinant(matrix):
         modifier *= -1
     return answer
 
-#Seth
+
+# Seth
 def getDiag(matrix):
     diag = np.copy(matrix)
     for i in range(diag.shape[0]):
@@ -77,7 +79,8 @@ def getDiag(matrix):
                 diag[i][j] = 0
     return diag
 
-#Seth
+
+# Seth
 def getLowerDiag(matrix):
     lower = np.copy(matrix)
     for i in range(lower.shape[0]):
@@ -85,6 +88,7 @@ def getLowerDiag(matrix):
             if i < j:
                 lower[i][j] = 0
     return lower
+
 
 # Emeke
 def find_eigenvalues(matrix):
@@ -276,13 +280,15 @@ def matrix_cofactor(matrix):
 def matrix_inverse(matrix):
     return 1.0 / find_determinant(matrix) * matrix_cofactor(matrix).T
 
-#Emeke
+
+# Emeke
 def matrix_inverse_22(matrix):
-    det = matrix[0,0]*matrix[1,1] - matrix[0,1]*matrix[1,0]
-    matrixB = np.matrix([[matrix[0,0], - matrix[0,1]], [-matrix[1,0], matrix[1,1]]])
+    det = matrix[0, 0] * matrix[1, 1] - matrix[0, 1] * matrix[1, 0]
+    matrixB = np.matrix([[matrix[0, 0], - matrix[0, 1]], [-matrix[1, 0], matrix[1, 1]]])
     if det == 0:
         return None
-    return (1.0/det) * matrixB
+    return (1.0 / det) * matrixB
+
 
 # James
 def generate_pascal_matrix(size):
@@ -369,21 +375,24 @@ def problem_1d(n=(2, 12)):
         print >> file
 
     print n, lu_error, lu_px_b_error, qr_househ_error, qr_px_b_househ_error, qr_givens_error, qr_px_b_givens_error
-    plot.plot(n, lu_error)
-    plot.plot(n, lu_px_b_error)
-    plot.plot(n, qr_househ_error)
-    plot.plot(n, qr_px_b_househ_error)
-    plot.plot(n, qr_givens_error)
-    plot.plot(n, qr_px_b_givens_error)
-    plot.show()
-"""Emeke
-Generates 1000 random 2x2 matrices
-Create a series of randomly generated matrices with uniformly distributed entries within a given range
-shape (tuple(int, int)): Desired shape of matrices.
-        number (int): Requested number of matrices.
-        lower (Real): Lower bound for random range.
-        upper (Real): Upper bound for random range.
+    pyplot.plot(n, lu_error)
+    pyplot.plot(n, lu_px_b_error)
+    pyplot.plot(n, qr_househ_error)
+    pyplot.plot(n, qr_px_b_househ_error)
+    pyplot.plot(n, qr_givens_error)
+    pyplot.plot(n, qr_px_b_givens_error)
+    pyplot.show()
+
+
+""" Emeke
+    Generates 1000 random 2x2 matrices
+    Create a series of randomly generated matrices with uniformly distributed entries within a given range
+    shape (tuple(int, int)): Desired shape of matrices.
+    number (int): Requested number of matrices.
+    lower (Real): Lower bound for random range.
+    upper (Real): Upper bound for random range.
 """
+
 
 def random_matrices(shape, number, lower, upper):
     series = tuple()
@@ -393,23 +402,24 @@ def random_matrices(shape, number, lower, upper):
 
         for i in range(mat.shape[0]):
             for j in range(mat.shape[1]):
-                mat[i,j] = rand.uniform(lower, upper)
+                mat[i, j] = rand.uniform(lower, upper)
 
         series += (mat,)
 
     return series
 
-#Emeke
+
+# Emeke
 def plot_colored(data, colors, color_label, xlabel, ylabel, title, xscale, yscale, cmap, fname):
     pyplot.clf()
 
-    #Create colormap object if needed
+    # Create colormap object if needed
     colormap = None if cmap is None else plotcolors.LinearSegmentedColormap.from_list('cplot', cmap)
 
-    #Plot data
+    # Plot data
     pyplot.scatter(data[0], data[1], s=40, c=colors, cmap=colormap)
 
-    #Create titles and legend, then render
+    # Create titles and legend, then render
     pyplot.colorbar().set_label(color_label)
     pyplot.title(title).set_size('xx-large')
     pyplot.xlabel(xlabel)
