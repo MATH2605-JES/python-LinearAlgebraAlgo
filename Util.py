@@ -320,7 +320,6 @@ def generate_b_matrix(size):
     return matrix
 
 
-# @TODO Do a final check-up
 # James
 def problem_1d(n=(2, 13)):
     low_bound, high_bound = n
@@ -390,6 +389,7 @@ def problem_1d(n=(2, 13)):
         # error = vector_error(px_minus_b)
         # print error
     f, ((ax1, ax2), (ax3, ax4)) = pyplot.subplots(2, 2, sharey=True, sharex=True)
+
     ax1.set_title('LU')
     ax1.plot(n, lu_error, label='LU Error', c='blue')
     ax1.plot(n, lu_px_b_error, label='LU Px_b Error', c='black')
@@ -406,6 +406,8 @@ def problem_1d(n=(2, 13)):
 
     # Draw Error on P lines
     fig = pyplot.figure()
+    pyplot.xlabel('size (n x n pascal matrix)')
+    pyplot.ylabel('||LU or QR - P||_inf (error)')
     pyplot.title('Error on P')
     lue_plot, = pyplot.plot(n, lu_error, label='LU', c='red')
     qrhhe_plot, = pyplot.plot(n, qr_househ_error, label='QR Householder', c='green')
@@ -413,6 +415,8 @@ def problem_1d(n=(2, 13)):
     pyplot.legend(handles=[lue_plot, qrhhe_plot, qrge_plot])
     # Draw Error on b lines
     fig = pyplot.figure()
+    pyplot.xlabel('size (n x n pascal matrix)')
+    pyplot.ylabel('||Px - b||_inf (error)')
     pyplot.title('Error on b')
     lupxbe_plot, = pyplot.plot(n, lu_px_b_error, label='LU', c='red')
     qrhhpxbe_plot, = pyplot.plot(n, qr_px_b_househ_error, label='QR Householder', c='green')
