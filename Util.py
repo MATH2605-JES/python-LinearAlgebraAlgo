@@ -202,22 +202,21 @@ def qr_fact_givens(matrix):
     return Q.round(15), R.round(15), error
 
 
-# James @TODO not sure if this is it
-# untested
+# James
 def matrix_error(matrix, original_matrix):
     if matrix.shape != original_matrix.shape:
         return None
     y, x = matrix.shape
     error_matrix = matrix - original_matrix
     # Allowed built-ins were iffy on this one, so didn't use np.sum(matrix-original_matrix, axis=1)
-    sums = []
+    max = abs(error_matrix[0, 0])
     for i in range(y):
-        row_sum = 0
         for j in range(x):
-            row_sum += abs(error_matrix[i, j])
-        sums.append(row_sum)
+            compared = abs(error_matrix[i, j])
+            if max < compared:
+                max = compared
 
-    return max(sums)
+    return max
 
 
 # James
@@ -316,7 +315,7 @@ def problem_1d(n=(2, 12)):
     low_bound, high_bound = n
 
     file = open('problem_1d.txt', 'w')
-    n, lu_error, lu_px_b_error, qr_househ_error, qr_px_b_househ_error, qr_givens_error, qr_px_b_givens_error = [], [], [], [], [], [], []
+    n, lu_error, lu_px_b_error, qr_househ_error, qr_px_b_househ_error, qr_givens_error, qr_px_b_givens_error, inverse_px_b_error = [], [], [], [], [], [], [], []
 
     for size in range(low_bound, high_bound):
         print >> file, '============[ n =', size, ']====================='
@@ -373,14 +372,22 @@ def problem_1d(n=(2, 12)):
         qr_px_b_givens_error.append(error)
         print >> file
         print >> file
+        # ============Solve system Eq through inversion===============
+        # Ax = b solve by inverse
+        a_inv_b = multiply_matrix(matrix_inverse(p), b)
 
-    print n, lu_error, lu_px_b_error, qr_househ_error, qr_px_b_househ_error, qr_givens_error, qr_px_b_givens_error
-    pyplot.plot(n, lu_error)
-    pyplot.plot(n, lu_px_b_error)
-    pyplot.plot(n, qr_househ_error)
-    pyplot.plot(n, qr_px_b_househ_error)
-    pyplot.plot(n, qr_givens_error)
-    pyplot.plot(n, qr_px_b_givens_error)
+    f, ((ax1, ax2), (ax3, ax4)) = pyplot.subplots(2, 2, sharex='col', sharey='row')
+
+    ax1.set_title('LU')
+    lue_plot, = ax1.plot(n, lu_error, label='LU Error')
+    lupxbe_plot, = ax1.plot(n, lu_px_b_error, label='LU Px_b Error')
+    ax2.set_title('QR Householder')
+    qrhhe_plot, = ax2.plot(n, qr_househ_error, label='QR Householder Error')
+    qrhhpxbe_plot, = ax2.plot(n, qr_px_b_househ_error, label='QR Householder Px_b Error')
+    ax3.set_title('QR Givens')
+    qrge_plot, = ax3.plot(n, qr_givens_error, label='QR Givens Error')
+    qrgpxbe_plot, = ax3.plot(n, qr_px_b_givens_error, label='QR Givens Px_b Error')
+    pyplot.legend(handles=[lue_plot, lupxbe_plot, qrhhe_plot, qrhhpxbe_plot, qrge_plot, qrgpxbe_plot])
     pyplot.show()
 
 
@@ -431,7 +438,9 @@ def plot_colored(data, colors, color_label, xlabel, ylabel, title, xscale, yscal
 
 if __name__ == '__main__':
     # matrix = np.array([[3, 2, 2], [4, 1, 1], [0, 2, 5]])
-    # matrix = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 6, 10], [1, 4, 10, 20]])
-    # matrix2 = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
+    matrix = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 6, 10], [1, 4, 10, 20]])
+    matrix2 = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 5]])
+    error = np.array([1, 2, 3])
+    error2 = np.array([-4, -3, -1])
     # matrix = np.array([[4, 1, -2, 2], [1, 2, 0, 1], [-2, 0, 3, -2], [2, 1, -2, -1]])
     problem_1d()
