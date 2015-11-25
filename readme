@@ -1,0 +1,3 @@
+part2:go to the directory where iterative_methods is and run from the command line iterative_methods.py. This will run both an example of
+      the iterative methods and part 2 where 100 intital vectos are created and run through the methods 100 times along with the resulting
+      graph.

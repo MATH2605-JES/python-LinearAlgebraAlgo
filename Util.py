@@ -12,7 +12,7 @@ def multiply_matrix(matrix_1, matrix_2):
     if matrix_1.shape[1] != matrix_2.shape[0]:
         return None
 
-    result = np.empty((matrix_1.shape[0], matrix_2.shape[1]))
+    result = np.empty((matrix_1.shape[0], matrix_2.shape[1]), dtype=float)
     # We can use transpose & dot product library function.
     # Dot product of first rows of matrix_1 and matrix_2^t gives us first resulting number.of first row.
     # Dot product of first row of matrix_1 and second row of matrix_2^t gives us second resulting number of first row.
@@ -67,6 +67,17 @@ def find_determinant(matrix):
                     newCol += 1
         answer += element * modifier * find_determinant(newMatrix)
         modifier *= -1
+    return answer
+
+
+# Seth
+def vector_error(array):
+    if len(array) == 0:
+        return
+    answer = np.absolute(array[0])
+    for i in range(len(array)):
+        if np.absolute(array[i]) > answer:
+            answer = np.absolute(array[i])
     return answer
 
 
@@ -134,9 +145,9 @@ def house_holder_reconstruct(matrix, size):
 def house_holder_compute_h(matrix):
     v = np.array(matrix[:, 0]).astype(float)  # first column vector
     v[0] += vector_norm(v)  # construct u
-    u_norm_squared = vector_norm(v) ** 2  # ||u||^2
+    u_norm_squared = vector_norm(v) ** 2.0  # ||u||^2
     u = np.array([v])  # wrap to allow u^t
-    h = np.identity(u.shape[1], float) - 2 / u_norm_squared * np.dot(u.T, u)  # @TODO will we get any nxn matrix
+    h = np.identity(u.shape[1], float) - 2.0 / u_norm_squared * np.dot(u.T, u)
     return h
 
 
@@ -152,7 +163,7 @@ def qr_fact_househ(matrix):
         R = multiply_matrix(h, R)  # h_n * (.... h_1 * A)
 
     error = matrix_error(multiply_matrix(Q, R), matrix)
-    return Q.round(14), R.round(14), error
+    return Q, R, error
 
 
 # James
@@ -177,7 +188,7 @@ def get_sub_matrix(matrix, cut_size=1):
 def qr_fact_givens(matrix):
     m, n = matrix.shape
 
-    Q = np.identity(m)
+    Q = np.identity(m, dtype=float)
     R = np.copy(matrix)
 
     for i in range(m):
@@ -186,10 +197,10 @@ def qr_fact_givens(matrix):
                 x = R[j][j]
                 y = R[i][j]
                 norm = vector_norm([x, y])
-                cos = x / norm
-                sin = -y / norm
+                cos = x * 1.0 / norm
+                sin = -y * 1.0 / norm
 
-                G = np.identity(m)
+                G = np.identity(m, dtype=float)
                 G[i, i] = cos
                 G[i, j] = sin
                 G[j, i] = -sin
@@ -199,25 +210,24 @@ def qr_fact_givens(matrix):
                 R = multiply_matrix(G, R)
 
     error = matrix_error(multiply_matrix(Q, R), matrix)
-    return Q.round(15), R.round(15), error
+    return Q, R, error
 
 
-# James @TODO not sure if this is it
-# untested
+# James
 def matrix_error(matrix, original_matrix):
     if matrix.shape != original_matrix.shape:
         return None
     y, x = matrix.shape
     error_matrix = matrix - original_matrix
     # Allowed built-ins were iffy on this one, so didn't use np.sum(matrix-original_matrix, axis=1)
-    sums = []
+    max = abs(error_matrix[0, 0])
     for i in range(y):
-        row_sum = 0
         for j in range(x):
-            row_sum += abs(error_matrix[i, j])
-        sums.append(row_sum)
+            compared = abs(error_matrix[i, j])
+            if max < compared:
+                max = compared
 
-    return max(sums)
+    return max
 
 
 # James
@@ -305,18 +315,17 @@ def generate_pascal_matrix(size):
 # James
 def generate_b_matrix(size):
     matrix = np.zeros([size, 1])
-    for i in range(1, size):
-        matrix[i, 0] = 1.0 / i
+    for i in range(1, size + 1):
+        matrix[i - 1, 0] = 1.0 / i
     return matrix
 
 
-# @TODO Do a final check-up
 # James
-def problem_1d(n=(2, 12)):
+def problem_1d(n=(2, 13)):
     low_bound, high_bound = n
 
     file = open('problem_1d.txt', 'w')
-    n, lu_error, lu_px_b_error, qr_househ_error, qr_px_b_househ_error, qr_givens_error, qr_px_b_givens_error = [], [], [], [], [], [], []
+    n, lu_error, lu_px_b_error, qr_househ_error, qr_px_b_househ_error, qr_givens_error, qr_px_b_givens_error, inverse_px_b_error = [], [], [], [], [], [], [], []
 
     for size in range(low_bound, high_bound):
         print >> file, '============[ n =', size, ']====================='
@@ -330,10 +339,10 @@ def problem_1d(n=(2, 12)):
         print >> file, '============LU factorization==============='
         l, u, error = lu_fact(p)
         print >> file, 'L ='
-        print >> file, l
+        print >> file, l.round(6)
         print >> file, 'U ='
-        print >> file, u
-        print >> file, 'error =', error
+        print >> file, u.round(6)
+        print >> file, '||LU - P||_inf (error) =', error
         lu_error.append(error)
         x = solve_lu_b(l, u, b)
         print >> file, 'x_sol ='
@@ -344,26 +353,26 @@ def problem_1d(n=(2, 12)):
         print >> file, '============QR factorization==============='
         print >> file, '(Householder)'
         q, r, error = qr_fact_househ(p)
-        print >> file, 'L ='
-        print >> file, l
-        print >> file, 'U ='
-        print >> file, u
+        print >> file, 'Q ='
+        print >> file, q.round(6)
+        print >> file, 'R ='
+        print >> file, r.round(6)
         print >> file, 'error =', error
         qr_househ_error.append(error)
         x = solve_qr_b(q, r, b)
         print >> file, 'x_sol ='
         print >> file, x
         error = matrix_error(multiply_matrix(p, x), b)
-        print >> file, '||Px - b||_inf (error) =', error
+        print >> file, '||QR - P||_inf (error) =', error
         qr_px_b_househ_error.append(error)
         print >> file, '============QR factorization==============='
         print >> file, '(Givens)'
         q, r, error = qr_fact_givens(p)
-        print >> file, 'L ='
-        print >> file, l
-        print >> file, 'U ='
-        print >> file, u
-        print >> file, 'error =', error
+        print >> file, 'Q ='
+        print >> file, q.round(6)
+        print >> file, 'R ='
+        print >> file, r.round(6)
+        print >> file, '||QR - P||_inf (error) =', error
         qr_givens_error.append(error)
         x = solve_qr_b(q, r, b)
         print >> file, 'x_sol ='
@@ -373,14 +382,46 @@ def problem_1d(n=(2, 12)):
         qr_px_b_givens_error.append(error)
         print >> file
         print >> file
+        # ============Solve system Eq through inversion===============
+        # Computationally long. Enable only if needed
+        # x = multiply_matrix(matrix_inverse(p), b)
+        # px_minus_b = multiply_matrix(p, x) - b
+        # error = vector_error(px_minus_b)
+        # print error
+    f, ((ax1, ax2), (ax3, ax4)) = pyplot.subplots(2, 2, sharey=True, sharex=True)
 
-    print n, lu_error, lu_px_b_error, qr_househ_error, qr_px_b_househ_error, qr_givens_error, qr_px_b_givens_error
-    pyplot.plot(n, lu_error)
-    pyplot.plot(n, lu_px_b_error)
-    pyplot.plot(n, qr_househ_error)
-    pyplot.plot(n, qr_px_b_househ_error)
-    pyplot.plot(n, qr_givens_error)
-    pyplot.plot(n, qr_px_b_givens_error)
+    ax1.set_title('LU')
+    ax1.plot(n, lu_error, label='LU Error', c='blue')
+    ax1.plot(n, lu_px_b_error, label='LU Px_b Error', c='black')
+    ax2.set_title('QR Householder')
+    ax2.plot(n, qr_househ_error, label='QR Householder Error', c='blue')
+    ax2.plot(n, qr_px_b_househ_error, label='QR Householder Px_b Error', c='black')
+    ax3.set_title('QR Givens')
+    ax3.plot(n, qr_givens_error, label='QR Givens Error', c='blue')
+    ax3.plot(n, qr_px_b_givens_error, label='QR Givens Px_b Error', c='black')
+    # Draw legend
+    error_line, = ax4.plot([], label='Error (on P)', c='blue')
+    px_b_error_line, = ax4.plot([], label='Error (on b)', c='black')
+    ax4.legend(handles=[error_line, px_b_error_line])
+
+    # Draw Error on P lines
+    fig = pyplot.figure()
+    pyplot.xlabel('size (n x n pascal matrix)')
+    pyplot.ylabel('||LU or QR - P||_inf (error)')
+    pyplot.title('Error on P')
+    lue_plot, = pyplot.plot(n, lu_error, label='LU', c='red')
+    qrhhe_plot, = pyplot.plot(n, qr_househ_error, label='QR Householder', c='green')
+    qrge_plot, = pyplot.plot(n, qr_givens_error, label='QR Givens', c='blue')
+    pyplot.legend(handles=[lue_plot, qrhhe_plot, qrge_plot])
+    # Draw Error on b lines
+    fig = pyplot.figure()
+    pyplot.xlabel('size (n x n pascal matrix)')
+    pyplot.ylabel('||Px - b||_inf (error)')
+    pyplot.title('Error on b')
+    lupxbe_plot, = pyplot.plot(n, lu_px_b_error, label='LU', c='red')
+    qrhhpxbe_plot, = pyplot.plot(n, qr_px_b_househ_error, label='QR Householder', c='green')
+    qrgpxbe_plot, = pyplot.plot(n, qr_px_b_givens_error, label='QR Givens', c='blue')
+    pyplot.legend(handles=[lupxbe_plot, qrhhpxbe_plot, qrgpxbe_plot])
     pyplot.show()
 
 
@@ -431,7 +472,9 @@ def plot_colored(data, colors, color_label, xlabel, ylabel, title, xscale, yscal
 
 if __name__ == '__main__':
     # matrix = np.array([[3, 2, 2], [4, 1, 1], [0, 2, 5]])
-    # matrix = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 6, 10], [1, 4, 10, 20]])
-    # matrix2 = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
+    matrix = np.array([[1, 1, 1, 1], [1, 2, 3, 4], [1, 3, 6, 10], [1, 4, 10, 20]])
+    matrix2 = np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 5]])
+    error = np.array([1, 2, 3])
+    error2 = np.array([-4, -3, -1])
     # matrix = np.array([[4, 1, -2, 2], [1, 2, 0, 1], [-2, 0, 3, -2], [2, 1, -2, -1]])
     problem_1d()
