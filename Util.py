@@ -69,7 +69,15 @@ def find_determinant(matrix):
         modifier *= -1
     return answer
 
-
+#Seth
+def vector_error(array):
+    if len(array) == 0:
+        return
+    answer = np.absolute(array[0])
+    for i in range(len(array)):
+        if np.absolute(array[i]) > answer:
+            answer = np.absolute(array[i])
+    return answer
 # Seth
 def getDiag(matrix):
     diag = np.copy(matrix)
