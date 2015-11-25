@@ -1,3 +1,7 @@
+part1:      Go to the directory where symmetric_pascal_matrix.py is and run from the command line, 'python symmetric_pascal_matrix.py'.
+            The output file, 'problem_1d.txt' is created in the same directory once you close out the graphs.
+            You can modify Pascal matrix range in the header of the function 'def problem_1d(n=(2, 13)):' ,where
+            n=(2, 13) means n = 2 to 12.
 part2:go to the directory where iterative_methods is and run from the command line iterative_methods.py. This will run both an example of
       the iterative methods and part 2 where 100 intital vectos are created and run through the methods 100 times along with the resulting
       graph.
